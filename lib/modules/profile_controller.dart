@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../model/profile_model.dart';
-import '../repository/profile_repository.dart';
+import 'profile_model.dart';
+import 'profile_repository.dart';
 
 class ProfileController extends GetxController {
   final ProfileRepository repository =
