@@ -18,7 +18,7 @@ class ClockScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(ClockController());
+    final ctrl = Get.find<ClockController>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
@@ -81,14 +81,27 @@ class ClockScreen extends StatelessWidget {
                     fontWeight: FontWeight.w400)),
           ],
         ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-              color: const Color(0xFF2563EB),
-              borderRadius: BorderRadius.circular(12)),
-          child: const Icon(Icons.person_outline_rounded,
-              color: Colors.white, size: 20),
+        GestureDetector(
+          onTap: () => Get.toNamed('/profile'),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: const Color(0xFF2563EB),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    )
+                  ]),
+              child: const Icon(Icons.person_outline_rounded,
+                  color: Colors.white, size: 20),
+            ),
+          ),
         ),
       ],
     );
@@ -106,8 +119,7 @@ class ClockScreen extends StatelessWidget {
       final badgeBg = isClockedIn
           ? Colors.white.withOpacity(0.12)
           : const Color(0xFFF0F0F0);
-      final badgeText =
-      isClockedIn ? Colors.white : const Color(0xFF555555);
+      final badgeText = isClockedIn ? Colors.white : const Color(0xFF555555);
       final dotColor =
       isClockedIn ? const Color(0xFF60A5FA) : const Color(0xFFD1D5DB);
 
@@ -139,8 +151,7 @@ class ClockScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                               color: dotColor, shape: BoxShape.circle)),
                       const SizedBox(width: 7),
-                      Text(
-                          isClockedIn ? 'Clocked In' : 'Clocked Out',
+                      Text(isClockedIn ? 'Clocked In' : 'Clocked Out',
                           style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -168,8 +179,7 @@ class ClockScreen extends StatelessWidget {
               ),
             ),
             Container(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                   color: badgeBg, borderRadius: BorderRadius.circular(20)),
               child: Text(ctrl.isRemote.value ? 'Remote' : 'On-site',
@@ -278,9 +288,7 @@ class ClockScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.file(File(ctrl.capturedImagePath.value!),
-                    height: 120,
-                    width: double.infinity,
-                    fit: BoxFit.cover),
+                    height: 120, width: double.infinity, fit: BoxFit.cover),
               ),
               const SizedBox(height: 12),
             ],
@@ -320,9 +328,7 @@ class ClockScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        ctrl.hasTakenPhoto.value
-                            ? 'Retake Photo'
-                            : 'Take Selfie',
+                        ctrl.hasTakenPhoto.value ? 'Retake Photo' : 'Take Selfie',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -420,8 +426,8 @@ class ClockScreen extends StatelessWidget {
           if (ctrl.isRemote.value) ...[
             const Divider(height: 1, color: Color(0xFFF0F0F0)),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 16),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -443,16 +449,13 @@ class ClockScreen extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14, color: Color(0xFFBBBBBB))),
                         isExpanded: true,
-                        icon: const Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: Color(0xFF888888),
-                            size: 20),
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF888888), size: 20),
                         style: const TextStyle(
                             fontSize: 14, color: Color(0xFF111111)),
                         items: kRemoteLocations.map((loc) {
                           return DropdownMenuItem<String>(
-                              value: loc['id'],
-                              child: Text(loc['name']!));
+                              value: loc['id'], child: Text(loc['name']!));
                         }).toList(),
                         onChanged: (val) =>
                         ctrl.selectedRemoteLocationId.value = val,
@@ -573,8 +576,7 @@ class PermissionRow extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
                 color: granted
                     ? const Color(0xFFEFF6FF)
@@ -639,8 +641,7 @@ class _ElapsedTimerState extends State<ElapsedTimer> {
   void initState() {
     super.initState();
     _update();
-    _timer = Timer.periodic(
-        const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) setState(_update);
     });
   }
@@ -672,9 +673,7 @@ class _ElapsedTimerState extends State<ElapsedTimer> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  CAMERA SCREEN
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Camera Verification ──────────────────────────────────────────────────────
 
 class CameraController2 extends GetxController {
   final CameraDescription camera;
@@ -697,8 +696,7 @@ class CameraController2 extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ctrl =
-        CameraController(camera, ResolutionPreset.high, enableAudio: false);
+    ctrl = CameraController(camera, ResolutionPreset.high, enableAudio: false);
     initFuture = ctrl.initialize();
     _clockTimer = Timer.periodic(
         const Duration(seconds: 1), (_) => now.value = DateTime.now());
@@ -801,16 +799,12 @@ class CameraScreen extends StatelessWidget {
 
   Widget _topBar(CameraController2 ctrl) {
     return Obx(() => Container(
-      padding:
-      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Colors.black.withOpacity(0.7),
-            Colors.transparent
-          ],
+          colors: [Colors.black.withOpacity(0.7), Colors.transparent],
         ),
       ),
       child: Row(
@@ -823,8 +817,7 @@ class CameraScreen extends StatelessWidget {
                 color: Colors.white.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.close,
-                  color: Colors.white, size: 20),
+              child: const Icon(Icons.close, color: Colors.white, size: 20),
             ),
           ),
           const Spacer(),
@@ -842,8 +835,7 @@ class CameraScreen extends StatelessWidget {
               Text(
                 DateFormat('d MMM yyyy').format(ctrl.now.value),
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 11),
+                    color: Colors.white.withOpacity(0.8), fontSize: 11),
               ),
             ],
           ),
@@ -859,10 +851,7 @@ class CameraScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: [
-            Colors.black.withOpacity(0.85),
-            Colors.transparent
-          ],
+          colors: [Colors.black.withOpacity(0.85), Colors.transparent],
         ),
       ),
       child: Column(
@@ -892,8 +881,7 @@ class CameraScreen extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text('Selfie\nVerification',
-                    style: TextStyle(
-                        color: Colors.white54, fontSize: 11)),
+                    style: TextStyle(color: Colors.white54, fontSize: 11)),
               ),
               GestureDetector(
                 onTap: ctrl.capture,
@@ -903,8 +891,7 @@ class CameraScreen extends StatelessWidget {
                   height: ctrl.capturing.value ? 62 : 70,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border:
-                    Border.all(color: Colors.white, width: 3),
+                    border: Border.all(color: Colors.white, width: 3),
                     color: ctrl.capturing.value
                         ? Colors.white.withOpacity(0.5)
                         : Colors.white.withOpacity(0.15),
@@ -914,8 +901,7 @@ class CameraScreen extends StatelessWidget {
                       width: 52,
                       height: 52,
                       decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle),
+                          color: Colors.white, shape: BoxShape.circle),
                     ),
                   ),
                 ),
@@ -935,8 +921,7 @@ class CameraScreen extends StatelessWidget {
         Transform(
           alignment: Alignment.center,
           transform: Matrix4.rotationY(math.pi),
-          child: Image.file(File(ctrl.captured.value!.path),
-              fit: BoxFit.cover),
+          child: Image.file(File(ctrl.captured.value!.path), fit: BoxFit.cover),
         ),
         Positioned(
           bottom: 0,
@@ -954,8 +939,7 @@ class CameraScreen extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white38),
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -970,8 +954,7 @@ class CameraScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
