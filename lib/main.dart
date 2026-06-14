@@ -13,6 +13,8 @@ import 'login_1/otp_screen.dart';
 import 'login_1/app_theme.dart';
 import 'exec_dash_v1/dashboard_screen.dart';
 import 'exec_dash_v1/controllers.dart';
+import 'modules/profile_view.dart';
+import 'modules/profile_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +45,7 @@ class AttendanceApp extends StatelessWidget {
         GetPage(name: '/otp',         page: () => const OtpScreen()),
         GetPage(name: '/clock',       page: () => const ClockScreen()),
         GetPage(name: '/dashboard',   page: () => const DashboardScreen()),
+        GetPage(name: '/profile',     page: () => ProfileView()),
       ],
     );
   }

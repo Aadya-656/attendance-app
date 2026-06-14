@@ -39,8 +39,7 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Gracefully lookup instance lifecycle from global binding domain context
-    final ProfileController controller = Get.find<ProfileController>();
+    final ProfileController controller = Get.put(ProfileController());
 
     return Scaffold(
       backgroundColor: bg,
