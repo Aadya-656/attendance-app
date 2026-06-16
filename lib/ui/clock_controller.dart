@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'attendance_model.dart';
 import 'clock_screen.dart'; // for CameraScreen
@@ -18,6 +19,13 @@ class ClockController extends GetxController with GetTickerProviderStateMixin {
   final clockInTime = Rxn<DateTime>();
   final hasTakenPhoto = false.obs;
   final capturedImagePath = Rxn<String>();
+  final photoTimestamp = Rxn<DateTime>();
+  final photoLatitude = Rxn<double>();
+  final photoLongitude = Rxn<double>();
+  final photoAddress = Rxn<String>();
+  final photoSubLocality = Rxn<String>();
+  final photoLocality = Rxn<String>();
+  final photoAccuracy = Rxn<double>();
 
   final double officeLat = 28.62924;
   final double officeLng = 77.24608;
@@ -145,10 +153,71 @@ class ClockController extends GetxController with GetTickerProviderStateMixin {
         capturedImagePath.value = photoResult.path;
         hasTakenPhoto.value = true;
         cameraPermission.value = true;
+        photoTimestamp.value = DateTime.now();
+
+        // Capture a fresh, high-accuracy position fix at the moment of
+        // capture so the stamped coordinates/accuracy reflect the photo
+        // itself rather than the last live-location poll.
+        double latAtCapture = currentLatitude.value;
+        double lngAtCapture = currentLongitude.value;
+        try {
+          final pos = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high);
+          latAtCapture = pos.latitude;
+          lngAtCapture = pos.longitude;
+          photoAccuracy.value = pos.accuracy;
+        } catch (_) {
+          photoAccuracy.value = null;
+        }
+
+        photoLatitude.value = latAtCapture;
+        photoLongitude.value = lngAtCapture;
+
+        await _reverseGeocode(latAtCapture, lngAtCapture);
       }
     } catch (e) {
       debugPrint("Internal Camera Exception: $e");
       cameraPermission.value = false;
+    }
+  }
+
+  /// Resolves a human-readable address for the given coordinates and
+  /// populates [photoAddress], [photoSubLocality] and [photoLocality].
+  ///
+  /// Uses the `geocoding` package, which wraps the native iOS/Android
+  /// geocoder (CLGeocoder / Geocoder) — no API key required, but it does
+  /// need a live network connection on the device.
+  Future<void> _reverseGeocode(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isEmpty) {
+        photoAddress.value = null;
+        photoSubLocality.value = null;
+        photoLocality.value = null;
+        return;
+      }
+
+      final p = placemarks.first;
+
+      // Build a single-line address from whichever components are
+      // actually populated (these vary by platform/region).
+      final parts = <String>[
+        if ((p.street ?? '').trim().isNotEmpty) p.street!.trim(),
+        if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!.trim(),
+        if ((p.locality ?? '').trim().isNotEmpty) p.locality!.trim(),
+        if ((p.postalCode ?? '').trim().isNotEmpty) p.postalCode!.trim(),
+      ];
+
+      photoAddress.value = parts.isNotEmpty ? parts.join(', ') : null;
+      photoSubLocality.value =
+      (p.subLocality ?? '').trim().isNotEmpty ? p.subLocality!.trim() : null;
+      photoLocality.value =
+      (p.locality ?? '').trim().isNotEmpty ? p.locality!.trim() : null;
+    } catch (e) {
+      debugPrint("Reverse geocoding failed: $e");
+      photoAddress.value = null;
+      photoSubLocality.value = null;
+      photoLocality.value = null;
     }
   }
 
@@ -166,6 +235,13 @@ class ClockController extends GetxController with GetTickerProviderStateMixin {
       clockInTime.value = null;
       hasTakenPhoto.value = false;
       capturedImagePath.value = null;
+      photoTimestamp.value = null;
+      photoLatitude.value = null;
+      photoLongitude.value = null;
+      photoAddress.value = null;
+      photoSubLocality.value = null;
+      photoLocality.value = null;
+      photoAccuracy.value = null;
     }
   }
 

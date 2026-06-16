@@ -38,7 +38,6 @@ class VerificationView extends StatelessWidget {
           itemCount:
           controller.attendanceList.length,
           itemBuilder: (context, index) {
-
             final employee =
             controller.attendanceList[index];
 
@@ -47,7 +46,6 @@ class VerificationView extends StatelessWidget {
               const EdgeInsets.only(
                 bottom: 16,
               ),
-
               padding:
               const EdgeInsets.all(18),
 
@@ -96,9 +94,7 @@ class VerificationView extends StatelessWidget {
                         size: 18,
                         color: primary,
                       ),
-
                       const SizedBox(width: 8),
-
                       Text(
                         employee.clockInTime,
                       ),
@@ -108,7 +104,8 @@ class VerificationView extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
                     children: [
 
                       Row(
@@ -144,9 +141,9 @@ class VerificationView extends StatelessWidget {
                           ),
                         ],
                       ),
-
                     ],
                   ),
+
                   const SizedBox(height: 10),
 
                   Row(
@@ -173,24 +170,21 @@ class VerificationView extends StatelessWidget {
                       horizontal: 12,
                       vertical: 6,
                     ),
-
                     decoration: BoxDecoration(
                       color: employee.faceIssue
                           ? Colors.orange
                           .withOpacity(.15)
                           : Colors.green
                           .withOpacity(.15),
-
                       borderRadius:
                       BorderRadius.circular(
-                          20),
+                        20,
+                      ),
                     ),
-
                     child: Text(
                       employee.faceIssue
                           ? "Face Issue Flagged"
                           : "Verified",
-
                       style: TextStyle(
                         color:
                         employee.faceIssue
@@ -204,39 +198,35 @@ class VerificationView extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  SizedBox(
-                    width: double.infinity,
-
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ReviewView(
-                              employee: employee,
+                  if (employee.faceIssue)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ReviewView(
+                                    employee: employee,
+                                  ),
                             ),
+                          );
+                        },
+                        style:
+                        ElevatedButton.styleFrom(
+                          backgroundColor:
+                          primary,
+                          padding:
+                          const EdgeInsets.symmetric(
+                            vertical: 14,
                           ),
-                        );
-                      },
-
-                      style:
-                      ElevatedButton.styleFrom(
-                        backgroundColor:
-                        primary,
-                        shape:
-                        RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius
-                              .circular(
-                              16),
+                        ),
+                        child: const Text(
+                          "Review",
                         ),
                       ),
-
-                      child: const Text(
-                        "Review",
-                      ),
                     ),
-                  ),
                 ],
               ),
             );

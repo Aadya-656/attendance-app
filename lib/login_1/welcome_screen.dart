@@ -24,7 +24,7 @@ class WelcomeScreen extends StatelessWidget {
               const AppLogo(size: 48),
               const SizedBox(height: 32),
               Text(
-                'Employee\nPortal',
+                'CRIS Out-Sourced\nAttendance Portal',
                 style: GoogleFonts.inter(
                   fontSize: 36,
                   fontWeight: FontWeight.w700,
@@ -33,25 +33,13 @@ class WelcomeScreen extends StatelessWidget {
                   letterSpacing: -1,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Secure access to your workplace tools\nand information.',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: AppColors.textSecondary,
-                  height: 1.5,
-                ),
-              ),
+
               const Spacer(),
               _FeatureRow(
                 icon: Icons.shield_outlined,
                 text: 'OTP-verified secure login',
               ),
-              const SizedBox(height: 16),
-              _FeatureRow(
-                icon: Icons.work_outline_rounded,
-                text: 'Project & shift management',
-              ),
+
               const SizedBox(height: 16),
               _FeatureRow(
                 icon: Icons.location_on_outlined,
@@ -80,17 +68,8 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 child: const Text('Sign in'),
               ),
-              const SizedBox(height: 40),
-              Center(
-                child: Text(
-                  'Chanakyapuri Office — Government of India',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    color: AppColors.textHint,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ),
+              const SizedBox(height: 80),
+
               const SizedBox(height: 16),
             ],
           ),

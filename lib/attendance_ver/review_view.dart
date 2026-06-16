@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'verification_model.dart';
 
-class ReviewView extends StatelessWidget {
+class ReviewView extends StatefulWidget {
   final VerificationModel employee;
 
   const ReviewView({
@@ -9,8 +9,18 @@ class ReviewView extends StatelessWidget {
     required this.employee,
   });
 
+  @override
+  State<ReviewView> createState() =>
+      _ReviewViewState();
+}
+
+class _ReviewViewState
+    extends State<ReviewView> {
   static const bg = Color(0xffEEF2FA);
   static const primary = Color(0xff4D6BFF);
+
+  String role = "teamLead";
+  // teamLead / moduleLead / projectHead
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +28,8 @@ class ReviewView extends StatelessWidget {
       backgroundColor: bg,
 
       appBar: AppBar(
-        backgroundColor: bg,
-        elevation: 0,
         title: const Text(
           "Attendance Review",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ),
 
@@ -35,163 +39,196 @@ class ReviewView extends StatelessWidget {
         child: ListView(
           children: [
             Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding:
+                const EdgeInsets.all(16),
 
                 child: Column(
                   crossAxisAlignment:
                   CrossAxisAlignment.start,
-
                   children: [
+
                     Text(
-                      employee.employeeName,
-                      style: const TextStyle(
+                      widget.employee
+                          .employeeName,
+                      style:
+                      const TextStyle(
                         fontSize: 22,
                         fontWeight:
                         FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(
+                        height: 8),
 
                     Text(
-                      "Type: ${employee.employeeType}",
+                      "Type: ${widget.employee.employeeType}",
                     ),
 
                     Text(
-                      "Date: ${employee.date}",
+                      "Date: ${widget.employee.date}",
                     ),
 
                     Text(
-                      "Clock In: ${employee.clockInTime}",
+                      "Clock In: ${widget.employee.clockInTime}",
                     ),
 
-                    const Divider(height: 30),
+                    const Divider(),
 
                     Text(
-                      "Home Office: ${employee.homeOffice}",
+                      "Home Office: ${widget.employee.homeOffice}",
                     ),
 
-                    const SizedBox(height: 6),
-
                     Text(
-                      "Checked In At: ${employee.checkedInAt}",
+                      "Checked In At: ${widget.employee.checkedInAt}",
                     ),
 
-                    const SizedBox(height: 6),
-
                     Text(
-                      employee.isWFH
+                      widget.employee.isWFH
                           ? "WFH: Yes"
                           : "WFH: No",
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(
+                        height: 20),
 
                     Container(
                       height: 220,
-                      width: double.infinity,
-
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
+                      decoration:
+                      BoxDecoration(
+                        color: Colors
+                            .grey.shade300,
                         borderRadius:
-                        BorderRadius.circular(
+                        BorderRadius
+                            .circular(
                             16),
                       ),
-
-                      child: const Center(
+                      child:
+                      const Center(
                         child: Text(
                           "Captured Selfie",
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(
+                        height: 20),
 
                     Container(
                       padding:
-                      const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-
-                      decoration: BoxDecoration(
-                        color: employee.faceIssue
-                            ? Colors.orange
-                            .withOpacity(.12)
-                            : Colors.green
-                            .withOpacity(.12),
-
+                      const EdgeInsets
+                          .all(12),
+                      decoration:
+                      BoxDecoration(
+                        color: widget.employee
+                            .reviewStatus ==
+                            "approved"
+                            ? Colors.green
+                            .withOpacity(
+                            .15)
+                            : widget.employee
+                            .reviewStatus ==
+                            "rejected"
+                            ? Colors.red
+                            .withOpacity(
+                            .15)
+                            : Colors.orange
+                            .withOpacity(
+                            .15),
                         borderRadius:
-                        BorderRadius.circular(
+                        BorderRadius
+                            .circular(
                             12),
                       ),
-
                       child: Text(
-                        employee.faceIssue
-                            ? "Face Issue Flagged"
-                            : "Verified",
-
-                        style: TextStyle(
-                          color: employee.faceIssue
-                              ? Colors.orange
-                              : Colors.green,
-
-                          fontWeight:
-                          FontWeight.w600,
-                        ),
+                        widget.employee
+                            .reviewStatus ==
+                            "approved"
+                            ? "Approved"
+                            : widget.employee
+                            .reviewStatus ==
+                            "rejected"
+                            ? "Rejected"
+                            : "Face Issue Flagged",
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(
+                        height: 30),
 
-                    if (employee.faceIssue) ...[
-                      SizedBox(
-                        width: double.infinity,
+                    if (widget.employee
+                        .faceIssue &&
+                        role ==
+                            "teamLead" &&
+                        widget.employee
+                            .reviewStatus ==
+                            "flagged")
+                      Row(
+                        children: [
 
-                        child: ElevatedButton(
-                          onPressed: () {},
-
-                          style:
-                          ElevatedButton
-                              .styleFrom(
-                            backgroundColor:
-                            primary,
-                            padding:
-                            const EdgeInsets
-                                .symmetric(
-                              vertical: 14,
+                          Expanded(
+                            child:
+                            ElevatedButton(
+                              onPressed:
+                                  () {
+                                setState(
+                                      () {
+                                    widget
+                                        .employee
+                                        .reviewStatus = "approved";
+                                  },
+                                );
+                              },
+                              style:
+                              ElevatedButton.styleFrom(
+                                backgroundColor:
+                                primary,
+                                padding:
+                                const EdgeInsets.symmetric(
+                                  vertical:
+                                  14,
+                                ),
+                              ),
+                              child:
+                              const Text(
+                                "Approve",
+                              ),
                             ),
                           ),
 
-                          child: const Text(
-                            "Approve",
+                          const SizedBox(
+                              width: 12),
+
+                          Expanded(
+                            child:
+                            OutlinedButton(
+                              onPressed:
+                                  () {
+                                setState(
+                                      () {
+                                    widget
+                                        .employee
+                                        .reviewStatus = "rejected";
+                                  },
+                                );
+                              },
+                              style:
+                              OutlinedButton.styleFrom(
+                                padding:
+                                const EdgeInsets.symmetric(
+                                  vertical:
+                                  14,
+                                ),
+                              ),
+                              child:
+                              const Text(
+                                "Reject",
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-
-                      const SizedBox(height: 12),
-
-                      SizedBox(
-                        width: double.infinity,
-
-                        child: OutlinedButton(
-                          onPressed: () {},
-
-                          child: const Text(
-                            "Escalate to Super Admin",
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
