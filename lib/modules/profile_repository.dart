@@ -8,8 +8,9 @@ class ProfileRepository {
 
     return ProfileModel(
       name: "Reva Singh",
-      designation: "Module Lead",
-      office: "Bangalore Office",
+      designation: "Intern",
+      office: "ITPI Building",
+
     );
   }
 }

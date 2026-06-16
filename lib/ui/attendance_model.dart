@@ -8,5 +8,5 @@ const List<Map<String, String>> kRemoteLocations = [
   {'id': '2', 'name': 'ITO'},
   {'id': '3', 'name': 'Chanakyapuri'},
   {'id': '4', 'name': 'DMRC'},
-  {'id': '5', 'name': 'Other'},
+  {'id': '5', 'name': 'Tour'},
 ];

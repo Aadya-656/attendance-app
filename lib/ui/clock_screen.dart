@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'attendance_model.dart';
 import 'clock_controller.dart';
 import 'location_card.dart';
+import '../modules/profile_controller.dart'; // adjust path if needed
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
@@ -36,7 +37,7 @@ class ClockScreen extends StatelessWidget {
               const SizedBox(height: 20),
               _buildPermissionsCard(ctrl),
               const SizedBox(height: 20),
-              _buildSelfieCard(ctrl),
+              _buildSelfieCard(context, ctrl),
               const SizedBox(height: 20),
               _buildRemoteCard(ctrl),
               const SizedBox(height: 32),
@@ -59,52 +60,75 @@ class ClockScreen extends StatelessWidget {
     final dayLabel =
         '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]}';
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Attendance',
-              style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111111),
-                  letterSpacing: -0.5),
-            ),
-            const SizedBox(height: 2),
-            Text(dayLabel,
+    // Ensure ProfileController is registered; register lazily if not yet done.
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
+    final profileCtrl = Get.find<ProfileController>();
+
+    // Obx now correctly reads profileCtrl.profile (an Rx variable) directly,
+    // so GetX can track it and rebuild only this widget on change.
+    return Obx(() {
+      final name = profileCtrl.profile.value?.name;
+      final initial = (name != null && name.isNotEmpty)
+          ? name[0].toUpperCase()
+          : null;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Attendance',
                 style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF888888),
-                    fontWeight: FontWeight.w400)),
-          ],
-        ),
-        GestureDetector(
-          onTap: () => Get.toNamed('/profile'),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF2563EB).withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    )
-                  ]),
-              child: const Icon(Icons.person_outline_rounded,
-                  color: Colors.white, size: 20),
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111111),
+                    letterSpacing: -0.5),
+              ),
+              const SizedBox(height: 2),
+              Text(dayLabel,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF888888),
+                      fontWeight: FontWeight.w400)),
+            ],
+          ),
+          GestureDetector(
+            onTap: () => Get.toNamed('/profile'),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                    color: const Color(0xFF2563EB),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      )
+                    ]),
+                child: Center(
+                  child: initial != null
+                      ? Text(initial,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700))
+                      : const Icon(Icons.person_outline_rounded,
+                      color: Colors.white, size: 20),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildStatusCard(ClockController ctrl) {
@@ -114,10 +138,10 @@ class ClockScreen extends StatelessWidget {
       isClockedIn ? const Color(0xFF2563EB) : const Color(0xFFFFFFFF);
       final textColor = isClockedIn ? Colors.white : const Color(0xFF111111);
       final subColor = isClockedIn
-          ? Colors.white.withOpacity(0.55)
+          ? Colors.white.withValues(alpha: 0.55)
           : const Color(0xFF888888);
       final badgeBg = isClockedIn
-          ? Colors.white.withOpacity(0.12)
+          ? Colors.white.withValues(alpha: 0.12)
           : const Color(0xFFF0F0F0);
       final badgeText = isClockedIn ? Colors.white : const Color(0xFF555555);
       final dotColor =
@@ -131,8 +155,8 @@ class ClockScreen extends StatelessWidget {
           boxShadow: [
             BoxShadow(
                 color: isClockedIn
-                    ? const Color(0xFF2563EB).withOpacity(0.18)
-                    : Colors.black.withOpacity(0.04),
+                    ? const Color(0xFF2563EB).withValues(alpha: 0.18)
+                    : Colors.black.withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 6))
           ],
@@ -202,7 +226,7 @@ class ClockScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 20,
               offset: const Offset(0, 6))
         ],
@@ -235,7 +259,7 @@ class ClockScreen extends StatelessWidget {
     ));
   }
 
-  Widget _buildSelfieCard(ClockController ctrl) {
+  Widget _buildSelfieCard(BuildContext context, ClockController ctrl) {
     return Obx(() {
       final isClockedIn = ctrl.status.value == ClockStatus.clockedIn;
       final isWithinRange =
@@ -248,7 +272,7 @@ class ClockScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 6))
           ],
@@ -285,10 +309,54 @@ class ClockScreen extends StatelessWidget {
             const SizedBox(height: 14),
             if (ctrl.hasTakenPhoto.value &&
                 ctrl.capturedImagePath.value != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.file(File(ctrl.capturedImagePath.value!),
-                    height: 120, width: double.infinity, fit: BoxFit.cover),
+              GestureDetector(
+                onTap: () => _showSelfieOverlay(
+                  context: context,
+                  imagePath: ctrl.capturedImagePath.value!,
+                  latitude: ctrl.photoLatitude.value,
+                  longitude: ctrl.photoLongitude.value,
+                  timestamp: ctrl.photoTimestamp.value,
+                  address: ctrl.photoAddress.value,
+                  subLocality: ctrl.photoSubLocality.value,
+                  locality: ctrl.photoLocality.value,
+                  accuracy: ctrl.photoAccuracy.value,
+                ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(File(ctrl.capturedImagePath.value!),
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover),
+                    ),
+                    Positioned(
+                      right: 8,
+                      bottom: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.open_in_full_rounded,
+                                size: 12, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text('Tap to expand',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
             ],
@@ -388,6 +456,36 @@ class ClockScreen extends StatelessWidget {
     });
   }
 
+  void _showSelfieOverlay({
+    required BuildContext context,
+    required String imagePath,
+    required double? latitude,
+    required double? longitude,
+    required DateTime? timestamp,
+    String? address,
+    String? subLocality,
+    String? locality,
+    double? accuracy,
+  }) {
+    Navigator.of(context).push(PageRouteBuilder(
+      opaque: false,
+      barrierDismissible: true,
+      barrierColor: Colors.black87,
+      pageBuilder: (_, __, ___) => SelfieFullscreenOverlay(
+        imagePath: imagePath,
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: timestamp,
+        address: address,
+        subLocality: subLocality,
+        locality: locality,
+        accuracy: accuracy,
+      ),
+      transitionsBuilder: (_, anim, __, child) =>
+          FadeTransition(opacity: anim, child: child),
+    ));
+  }
+
   Widget _buildRemoteCard(ClockController ctrl) {
     return Obx(() => Container(
       decoration: BoxDecoration(
@@ -395,7 +493,7 @@ class ClockScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 20,
               offset: const Offset(0, 6))
         ],
@@ -475,6 +573,7 @@ class ClockScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10)),
                     child: TextField(
                       maxLines: 3,
+                      maxLength: 50,
                       style: const TextStyle(
                           fontSize: 14, color: Color(0xFF111111)),
                       decoration: const InputDecoration(
@@ -786,7 +885,7 @@ class CameraScreen extends StatelessWidget {
             height: 340,
             decoration: BoxDecoration(
               border: Border.all(
-                  color: Colors.white.withOpacity(0.5), width: 1.5),
+                  color: Colors.white.withValues(alpha: 0.5), width: 1.5),
               borderRadius: BorderRadius.circular(120),
             ),
           ),
@@ -804,7 +903,7 @@ class CameraScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.7), Colors.transparent],
         ),
       ),
       child: Row(
@@ -814,7 +913,7 @@ class CameraScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.close, color: Colors.white, size: 20),
@@ -835,7 +934,7 @@ class CameraScreen extends StatelessWidget {
               Text(
                 DateFormat('d MMM yyyy').format(ctrl.now.value),
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.8), fontSize: 11),
+                    color: Colors.white.withValues(alpha: 0.8), fontSize: 11),
               ),
             ],
           ),
@@ -851,7 +950,7 @@ class CameraScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: [Colors.black.withOpacity(0.85), Colors.transparent],
+          colors: [Colors.black.withValues(alpha: 0.85), Colors.transparent],
         ),
       ),
       child: Column(
@@ -893,8 +992,8 @@ class CameraScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                     color: ctrl.capturing.value
-                        ? Colors.white.withOpacity(0.5)
-                        : Colors.white.withOpacity(0.15),
+                        ? Colors.white.withValues(alpha: 0.5)
+                        : Colors.white.withValues(alpha: 0.15),
                   ),
                   child: Center(
                     child: Container(
@@ -929,7 +1028,7 @@ class CameraScreen extends StatelessWidget {
           right: 0,
           child: Container(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withValues(alpha: 0.7),
             child: Row(
               children: [
                 Expanded(
@@ -985,11 +1084,272 @@ class CameraScreen extends StatelessWidget {
   }
 }
 
+// ─── Selfie Fullscreen Overlay ────────────────────────────────────────────────
+
+class SelfieFullscreenOverlay extends StatelessWidget {
+  final String imagePath;
+  final double? latitude;
+  final double? longitude;
+  final DateTime? timestamp;
+  final String? address;
+  final String? subLocality;
+  final String? locality;
+  final double? accuracy;
+
+  const SelfieFullscreenOverlay({
+    super.key,
+    required this.imagePath,
+    required this.latitude,
+    required this.longitude,
+    required this.timestamp,
+    this.address,
+    this.subLocality,
+    this.locality,
+    this.accuracy,
+  });
+
+  String _formatDate(DateTime dt) => DateFormat('d-MMM-yyyy').format(dt);
+  String _formatTime(DateTime dt) => DateFormat('HH:mm:ss').format(dt);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: SafeArea(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // ── Close button ──────────────────────────────────────────────
+              Positioned(
+                top: 12,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.close, color: Colors.white, size: 20),
+                  ),
+                ),
+              ),
+
+              // ── Photo + metadata ──────────────────────────────────────────
+              Center(
+                child: GestureDetector(
+                  onTap: () {}, // prevent tap-through closing
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          blurRadius: 32,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Stack(
+                        children: [
+                          // Mirrored selfie image
+                          Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationY(math.pi),
+                            child: Image.file(
+                              File(imagePath),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                          ),
+
+                          // Metadata stamp at bottom (mirrors classic
+                          // geo-tag camera overlays: timestamp, address,
+                          // nearby tag, coordinates, accuracy)
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  colors: [
+                                    Colors.black.withValues(alpha: 0.85),
+                                    Colors.black.withValues(alpha: 0.55),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.6, 1.0],
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Date + time
+                                  if (timestamp != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Text(
+                                        '${_formatDate(timestamp!)} ${_formatTime(timestamp!)}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Courier',
+                                          letterSpacing: 0.2,
+                                        ),
+                                      ),
+                                    ),
+
+                                  // Full street address
+                                  if (address != null && address!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Text(
+                                        address!,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12.5,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Courier',
+                                          letterSpacing: 0.2,
+                                        ),
+                                      ),
+                                    ),
+
+                                  // "Nearby: <area>" tag, styled like the
+                                  // amber highlight in geo-tag overlays
+                                  if ((subLocality != null && subLocality!.isNotEmpty) ||
+                                      (locality != null && locality!.isNotEmpty))
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Text(
+                                        'Nearby: ${subLocality ?? locality}',
+                                        style: const TextStyle(
+                                          color: Color(0xFFFBBF24),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Courier',
+                                          letterSpacing: 0.2,
+                                        ),
+                                      ),
+                                    ),
+
+                                  // Lat / Lng + accuracy
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on_rounded,
+                                          size: 13, color: Colors.white70),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: Wrap(
+                                          spacing: 10,
+                                          runSpacing: 2,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            if (latitude != null && longitude != null)
+                                              Text(
+                                                'Lat: ${latitude!.toStringAsFixed(6)}, Lng: ${longitude!.toStringAsFixed(6)}',
+                                                style: const TextStyle(
+                                                  color: Color(0xFF86EFAC),
+                                                  fontSize: 11.5,
+                                                  fontFamily: 'Courier',
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            if (accuracy != null)
+                                              Text(
+                                                'Accuracy: ${accuracy!.toStringAsFixed(1)}m',
+                                                style: TextStyle(
+                                                  color: Colors.white.withValues(alpha: 0.85),
+                                                  fontSize: 11.5,
+                                                  fontFamily: 'Courier',
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Badge at top-left
+                          Positioned(
+                            top: 12,
+                            left: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2563EB).withValues(alpha: 0.85),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.verified_user_outlined,
+                                      size: 12, color: Colors.white),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'Selfie Verification',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Dismiss hint
+              Positioned(
+                bottom: 16,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Text(
+                    'Tap anywhere to close',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
+      ..color = Colors.white.withValues(alpha: 0.2)
       ..strokeWidth = 1.0;
 
     canvas.drawLine(Offset(size.width / 3, 0),

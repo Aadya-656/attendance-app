@@ -45,23 +45,14 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Sign in with your name and phone number.',
+                  'Sign in with your phone number.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
                 ),
+
                 const SizedBox(height: 36),
-                AppTextField(
-                  label: 'Full Name',
-                  hint: 'As per employee records',
-                  controller: auth.loginNameController,
-                  prefixIcon: const Icon(Icons.person_outline_rounded,
-                      size: 18, color: AppColors.textHint),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Name is required' : null,
-                ),
-                const SizedBox(height: 20),
                 AppTextField(
                   label: 'Mobile Number',
                   hint: '10-digit number',
@@ -94,6 +85,42 @@ class LoginScreen extends StatelessWidget {
                     if (v.length < 10) return 'Enter a valid 10-digit number';
                     return null;
                   },
+                ),
+
+                // Integrated OTP Info snippet inside the Container box
+                const SizedBox(height: 16), // Spacing between text field and info box
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border, width: 1),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2), // Aligns icon beautifully with multiline text
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          color: AppColors.primary,
+                          size: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'An OTP will be sent to your registered phone number for verification.',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w400,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 36),
 

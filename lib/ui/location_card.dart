@@ -24,7 +24,7 @@ class LocationRadiusCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 6))
           ],
@@ -85,8 +85,8 @@ class LocationRadiusCard extends StatelessWidget {
                     children: [
                       Text(
                         within
-                            ? '${(fraction * 100).toInt()}m from office (100m radius)'
-                            : '${(fraction * 100).toInt()}m from office — outside 100m radius',
+                            ? '${(fraction * 100).toInt()}m from ITPI office (100m radius)'
+                            : '${(fraction * 100).toInt()}m from ITPI office — outside 100m radius',
                         style: TextStyle(
                             fontSize: 12,
                             color: within
@@ -178,7 +178,7 @@ class RadiusPainter extends CustomPainter {
 
     final pulseExpand = maxRadius * 0.55 + (pulseValue * 10);
     final pulsePaint = Paint()
-      ..color = activeColor.withOpacity((1.0 - pulseValue) * 0.5)
+      ..color = activeColor.withValues(alpha: (1.0 - pulseValue) * 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     canvas.drawCircle(center, pulseExpand, pulsePaint);
@@ -190,12 +190,12 @@ class RadiusPainter extends CustomPainter {
     canvas.drawCircle(center, maxRadius, ringPaint);
 
     final safeZonePaint = Paint()
-      ..color = activeFill.withOpacity(0.13)
+      ..color = activeFill.withValues(alpha: 0.13)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, maxRadius * 0.55, safeZonePaint);
 
     final safeZoneBorderPaint = Paint()
-      ..color = activeColor.withOpacity(0.35)
+      ..color = activeColor.withValues(alpha: 0.35)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     canvas.drawCircle(center, maxRadius * 0.55, safeZoneBorderPaint);
@@ -217,7 +217,7 @@ class RadiusPainter extends CustomPainter {
     );
 
     final glowPaint = Paint()
-      ..color = activeColor.withOpacity(0.25)
+      ..color = activeColor.withValues(alpha: 0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
     canvas.drawCircle(dotPos, 9, glowPaint);
 
@@ -233,7 +233,7 @@ class RadiusPainter extends CustomPainter {
     canvas.drawCircle(dotPos, 6, dotBorderPaint);
 
     final centerGlowPaint = Paint()
-      ..color = const Color(0xFF2563EB).withOpacity(0.15)
+      ..color = const Color(0xFF2563EB).withValues(alpha: 0.15)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
     canvas.drawCircle(center, 10, centerGlowPaint);
 
