@@ -233,6 +233,28 @@ class _VerificationCardState extends State<_VerificationCard> {
     }
   }
 
+  // Tapping the avatar no longer opens the camera.
+  // If a photo has already been attached, it expands into a
+  // full-screen viewer. If not, it opens a blank placeholder screen.
+  void _onAvatarTap() {
+    if (_photo != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => _PhotoViewerScreen(
+            photo: _photo!,
+            name: widget.employee.name,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const _BlankPhotoScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final emp = widget.employee;
@@ -259,9 +281,9 @@ class _VerificationCardState extends State<_VerificationCard> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Avatar with camera tap
+                  // Avatar: tap to expand photo (or blank screen if none yet)
                   GestureDetector(
-                    onTap: _capturePhoto,
+                    onTap: _onAvatarTap,
                     child: Stack(
                       children: [
                         Container(
@@ -300,8 +322,10 @@ class _VerificationCardState extends State<_VerificationCard> {
                               color: _primary,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.camera_rear,
+                            child: Icon(
+                              _photo != null
+                                  ? Icons.zoom_in
+                                  : Icons.image_outlined,
                               size: 12,
                               color: Colors.white,
                             ),
@@ -591,8 +615,77 @@ class _VerificationCardState extends State<_VerificationCard> {
 }
 
 // ─────────────────────────────────────────────
-// Empty state
+// Full-screen photo viewer
+// Shown when the avatar is tapped AFTER a photo
+// has been attached. Supports pinch-to-zoom.
 // ─────────────────────────────────────────────
+class _PhotoViewerScreen extends StatelessWidget {
+  final File photo;
+  final String name;
+
+  const _PhotoViewerScreen({required this.photo, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: Text(name, style: const TextStyle(fontSize: 15)),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          minScale: 0.8,
+          maxScale: 4,
+          child: Image.file(photo, fit: BoxFit.contain),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Blank placeholder screen
+// Shown when the avatar is tapped BEFORE any
+// photo has been captured.
+// ─────────────────────────────────────────────
+class _BlankPhotoScreen extends StatelessWidget {
+  const _BlankPhotoScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: const Text("Employee Photo"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.image_not_supported_outlined,
+                size: 56, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              "No photo captured yet",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

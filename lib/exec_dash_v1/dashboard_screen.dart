@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'controllers.dart';
+import 'package:clock_camera_v4/login_1/auth_controller.dart';
+import 'package:clock_camera_v4/exit_diag/confirm_dialogs.dart';
 import 'attendance_section.dart';
 import 'calendar_section.dart';
 import 'package:clock_camera_v4/attendance_ver/verification_view.dart'; // adjust import path as needed
@@ -10,131 +13,167 @@ import 'package:clock_camera_v4/employee_managemnt/employee_management_view.dart
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
+  // Explicit "Log out" action — triggered only by the logout icon in the
+  // app bar, never by the back button (see _confirmExitApp below).
+  Future<void> _confirmAndLogout(BuildContext context) async {
+    final confirmed = await showLogoutDialog(context);
+    if (confirmed) {
+      Get.find<AuthController>().logout();
+    }
+  }
+
+  // Back button / back gesture on this root screen — asks to close the
+  // app rather than logging the user out, since those are two different
+  // intents (the user may just want to background/quit the app while
+  // staying signed in).
+  Future<void> _confirmExitApp(BuildContext context) async {
+    final confirmed = await showExitAppDialog(context);
+    if (confirmed) {
+      closeApp();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final nav = Get.find<NavController>();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6FB),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1565C0),
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(6),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        await _confirmExitApp(context);
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6FB),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF1565C0),
+          titleSpacing: 16,
+          title: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Icon(Icons.bar_chart_rounded,
+                    color: Colors.white, size: 18),
               ),
-              child: const Icon(Icons.bar_chart_rounded,
-                  color: Colors.white, size: 18),
+              const SizedBox(width: 10),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CRIS',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 1.2),
+                  ),
+                  Text(
+                    'Executive Dashboard',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFBDD5F5),
+                        letterSpacing: 0.3),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined,
+                  color: Colors.white, size: 22),
+              tooltip: 'Notifications',
+              onPressed: () => SnackbarService.showComingSoon('Notifications'),
             ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CRIS',
-                  style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 1.2),
+            IconButton(
+              icon:
+              const Icon(Icons.tune_rounded, color: Colors.white, size: 22),
+              tooltip: 'Filters',
+              onPressed: () => SnackbarService.showComingSoon('Filters'),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 12, left: 4),
+              child: GestureDetector(
+                onTap: () => SnackbarService.showComingSoon('Profile'),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  child: const Text(
+                    'AD',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                  ),
                 ),
-                Text(
-                  'Executive Dashboard',
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFFBDD5F5),
-                      letterSpacing: 0.3),
-                ),
-              ],
+              ),
+            ),
+            // ── Logout ──────────────────────────────────────
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: const Icon(Icons.logout_rounded,
+                    color: Colors.white, size: 22),
+                tooltip: 'Log out',
+                onPressed: () => _confirmAndLogout(ctx),
+              ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined,
-                color: Colors.white, size: 22),
-            tooltip: 'Notifications',
-            onPressed: () => SnackbarService.showComingSoon('Notifications'),
-          ),
-          IconButton(
-            icon:
-            const Icon(Icons.tune_rounded, color: Colors.white, size: 22),
-            tooltip: 'Filters',
-            onPressed: () => SnackbarService.showComingSoon('Filters'),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12, left: 4),
-            child: GestureDetector(
-              onTap: () => SnackbarService.showComingSoon('Profile'),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                child: const Text(
-                  'AD',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Obx(() => IndexedStack(
-        index: nav.selectedTab.value,
-        children: const [
-          AttendanceSection(),
-          CalendarSection(),
-          _ReportsTab(),
-        ],
-      )),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border:
-          Border(top: BorderSide(color: Color(0xFFE3E8F0), width: 1)),
-        ),
-        child: Obx(() => NavigationBar(
-          selectedIndex: nav.selectedTab.value,
-          onDestinationSelected: nav.changeTab,
-          backgroundColor: Colors.white,
-          indicatorColor: const Color(0xFFDEEAFC),
-          shadowColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.people_outline_rounded,
-                  color: Color(0xFF6B7A99), size: 22),
-              selectedIcon: Icon(Icons.people_rounded,
-                  color: Color(0xFF1565C0), size: 22),
-              label: 'Attendance',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.calendar_month_outlined,
-                  color: Color(0xFF6B7A99), size: 22),
-              selectedIcon: Icon(Icons.calendar_month_rounded,
-                  color: Color(0xFF1565C0), size: 22),
-              label: 'Calendar',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.insert_chart_outlined_rounded,
-                  color: Color(0xFF6B7A99), size: 22),
-              selectedIcon: Icon(Icons.insert_chart_rounded,
-                  color: Color(0xFF1565C0), size: 22),
-              label: 'Reports',
-            ),
+        body: Obx(() => IndexedStack(
+          index: nav.selectedTab.value,
+          children: const [
+            AttendanceSection(),
+            CalendarSection(),
+            _ReportsTab(),
           ],
         )),
-      ),
-    );
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border:
+            Border(top: BorderSide(color: Color(0xFFE3E8F0), width: 1)),
+          ),
+          child: Obx(() => NavigationBar(
+            selectedIndex: nav.selectedTab.value,
+            onDestinationSelected: nav.changeTab,
+            backgroundColor: Colors.white,
+            indicatorColor: const Color(0xFFDEEAFC),
+            shadowColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.people_outline_rounded,
+                    color: Color(0xFF6B7A99), size: 22),
+                selectedIcon: Icon(Icons.people_rounded,
+                    color: Color(0xFF1565C0), size: 22),
+                label: 'Attendance',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.calendar_month_outlined,
+                    color: Color(0xFF6B7A99), size: 22),
+                selectedIcon: Icon(Icons.calendar_month_rounded,
+                    color: Color(0xFF1565C0), size: 22),
+                label: 'Calendar',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.insert_chart_outlined_rounded,
+                    color: Color(0xFF6B7A99), size: 22),
+                selectedIcon: Icon(Icons.insert_chart_rounded,
+                    color: Color(0xFF1565C0), size: 22),
+                label: 'Reports',
+              ),
+            ],
+          )),
+        ),
+      ), // Scaffold
+    ); // PopScope
   }
 }
 

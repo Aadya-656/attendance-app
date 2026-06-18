@@ -9,8 +9,8 @@ class AttendanceSection extends StatelessWidget {
   // ── Mock data ────────────────────────────────────────────────────────────────
   static const int totalEmployees = 1240;
   static const int clockedIn = 1087;
-  static const int onLeave = 43;
-  static const int absent = 71;
+  static const int tourWfh = 38;
+  static const int absent = 114; // includes on-leave
 
   static const List<Map<String, dynamic>> locations = [
     {'name': 'ITO', 'present': 412, 'total': 480, 'icon': Icons.business_rounded},
@@ -84,7 +84,7 @@ class AttendanceSection extends StatelessWidget {
                     _KpiCard(
                       label: 'ABSENT',
                       value: '$absent',
-                      sub: 'unexcused',
+                      sub: 'not clocked in',
                       color: const Color(0xFF546E7A),
                       icon: Icons.person_off_outlined,
                       highlight: false,
@@ -93,14 +93,14 @@ class AttendanceSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     _KpiCard(
-                      label: 'ON LEAVE',
-                      value: '$onLeave',
-                      sub: 'approved',
+                      label: 'TOUR / WFH',
+                      value: '$tourWfh',
+                      sub: 'off-site',
                       color: const Color(0xFF7E94B0),
-                      icon: Icons.event_busy_outlined,
+                      icon: Icons.luggage_outlined,
                       highlight: false,
                       onTap: () =>
-                          SnackbarService.showComingSoon('Leave Detail'),
+                          SnackbarService.showComingSoon('Tour / WFH Detail'),
                     ),
                   ],
                 ),
@@ -113,7 +113,7 @@ class AttendanceSection extends StatelessWidget {
           // ── Attendance rate bar ───────────────────────────────────────────────
           const _AttendanceRateBar(
             clockedIn: clockedIn,
-            onLeave: onLeave,
+            tourWfh: tourWfh,
             absent: absent,
             total: totalEmployees,
           ),
@@ -305,17 +305,17 @@ class _KpiCard extends StatelessWidget {
 }
 
 class _AttendanceRateBar extends StatelessWidget {
-  final int clockedIn, onLeave, absent, total;
+  final int clockedIn, tourWfh, absent, total;
   const _AttendanceRateBar(
       {required this.clockedIn,
-        required this.onLeave,
+        required this.tourWfh,
         required this.absent,
         required this.total});
 
   @override
   Widget build(BuildContext context) {
     final pIn = clockedIn / total;
-    final pLeave = onLeave / total;
+    final pLeave = tourWfh / total;
     final pAbsent = absent / total;
 
     return Container(
@@ -363,7 +363,7 @@ class _AttendanceRateBar extends StatelessWidget {
                   color: const Color(0xFF1565C0), label: 'Present'),
               const SizedBox(width: 14),
               _BarLegend(
-                  color: const Color(0xFF90A4C8), label: 'On Leave'),
+                  color: const Color(0xFF90A4C8), label: 'Tour/WFH'),
               const SizedBox(width: 14),
               _BarLegend(
                   color: const Color(0xFFCDD6E8), label: 'Absent'),
