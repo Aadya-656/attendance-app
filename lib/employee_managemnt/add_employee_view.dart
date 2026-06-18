@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'employee_controller.dart';
 import 'employee_model.dart';
+import 'create_employee_view.dart';
 
 // ─────────────────────────────────────────────
 // Pending employee data model
@@ -90,7 +91,7 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
   static const _primary = Color(0xff4D6BFF);
   static const _bg = Color(0xffEEF2FA);
 
-  final _controller = Get.put(EmployeeController());
+  final _controller = Get.find<EmployeeController>();
   late final List<PendingEmployee> _pending;
 
   @override
@@ -146,6 +147,23 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
           "Verify Employees",
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Get.to(() => const CreateEmployeeView());
+              },
+              icon: const Icon(Icons.person_add_alt_1, size: 18),
+              label: const Text("Create"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff4D6BFF),
+                foregroundColor: Colors.white,
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
