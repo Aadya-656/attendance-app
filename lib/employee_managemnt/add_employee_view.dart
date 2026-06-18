@@ -90,7 +90,7 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
   static const _primary = Color(0xff4D6BFF);
   static const _bg = Color(0xffEEF2FA);
 
-  final _controller = Get.find<EmployeeController>();
+  final _controller = Get.put(EmployeeController());
   late final List<PendingEmployee> _pending;
 
   @override
