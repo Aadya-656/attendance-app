@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'controllers.dart';
+import 'package:clock_camera_v4/attendance_ver/verification_view.dart';
+import 'package:clock_camera_v4/employee_managemnt/add_employee_view.dart';
 
 class AttendanceSection extends StatelessWidget {
   const AttendanceSection({super.key});
@@ -114,6 +116,36 @@ class AttendanceSection extends StatelessWidget {
             onLeave: onLeave,
             absent: absent,
             total: totalEmployees,
+          ),
+
+          const SizedBox(height: 24),
+
+          // ── Quick actions ─────────────────────────────────────────────────────
+          Row(
+            children: [
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.person_add_outlined,
+                  label: 'Employee\nApprovals',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AddEmployeeView()),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickActionButton(
+                  icon: Icons.fact_check_outlined,
+                  label: 'Attendance\nVerification',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => VerificationView()),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 24),
@@ -370,6 +402,64 @@ class _BarLegend extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 11, color: Color(0xFF9BAABF))),
       ],
+    );
+  }
+}
+
+class _QuickActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFBDD5F5)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEBF3FF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 18, color: const Color(0xFF1565C0)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A2340),
+                    height: 1.35,
+                  ),
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded,
+                  size: 16, color: Color(0xFFBDD5F5)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

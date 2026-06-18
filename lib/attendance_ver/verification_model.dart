@@ -6,7 +6,7 @@ class VerificationModel {
   final String homeOffice;
   final String checkedInAt;
   final bool isWFH;
-  final bool faceIssue;
+  bool faceIssue;
   final String officeLocation;
 
   String reviewStatus;

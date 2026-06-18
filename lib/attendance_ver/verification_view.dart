@@ -171,10 +171,15 @@ class VerificationView extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: employee.faceIssue
-                          ? Colors.orange
+                      color: employee.reviewStatus ==
+                          "approved"
+                          ? Colors.green
                           .withOpacity(.15)
-                          : Colors.green
+                          : employee.reviewStatus ==
+                          "rejected"
+                          ? Colors.red
+                          .withOpacity(.15)
+                          : Colors.orange
                           .withOpacity(.15),
                       borderRadius:
                       BorderRadius.circular(
@@ -182,14 +187,21 @@ class VerificationView extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      employee.faceIssue
-                          ? "Face Issue Flagged"
-                          : "Verified",
+                      employee.reviewStatus ==
+                          "approved"
+                          ? "Verified"
+                          : employee.reviewStatus ==
+                          "rejected"
+                          ? "Rejected"
+                          : "Face Issue Flagged",
                       style: TextStyle(
-                        color:
-                        employee.faceIssue
-                            ? Colors.orange
-                            : Colors.green,
+                        color: employee.reviewStatus ==
+                            "approved"
+                            ? Colors.green
+                            : employee.reviewStatus ==
+                            "rejected"
+                            ? Colors.red
+                            : Colors.orange,
                         fontWeight:
                         FontWeight.w600,
                       ),
@@ -202,8 +214,8 @@ class VerificationView extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
@@ -212,6 +224,10 @@ class VerificationView extends StatelessWidget {
                                   ),
                             ),
                           );
+
+                          controller
+                              .attendanceList
+                              .refresh();
                         },
                         style:
                         ElevatedButton.styleFrom(

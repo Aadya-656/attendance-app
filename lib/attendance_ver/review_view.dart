@@ -170,13 +170,14 @@ class _ReviewViewState
                           Expanded(
                             child:
                             ElevatedButton(
-                              onPressed:
-                                  () {
+                              onPressed: () {
                                 setState(
                                       () {
-                                    widget
-                                        .employee
-                                        .reviewStatus = "approved";
+                                    widget.employee.reviewStatus =
+                                    "approved";
+
+                                    widget.employee.faceIssue =
+                                    false;
                                   },
                                 );
                               },
@@ -203,13 +204,14 @@ class _ReviewViewState
                           Expanded(
                             child:
                             OutlinedButton(
-                              onPressed:
-                                  () {
+                              onPressed: () {
                                 setState(
                                       () {
-                                    widget
-                                        .employee
-                                        .reviewStatus = "rejected";
+                                    widget.employee.reviewStatus =
+                                    "rejected";
+
+                                    widget.employee.faceIssue =
+                                    false;
                                   },
                                 );
                               },
