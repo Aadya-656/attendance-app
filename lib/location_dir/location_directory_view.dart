@@ -37,9 +37,30 @@ class LocationDirectoryView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
+            // ── Back button ──────────────────────────────
+            // Pops this screen off the Navigator stack, returning to the
+            // Reports tab on the Executive Dashboard (which is what
+            // pushed this view in the first place).
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _C.blueBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.arrow_back_rounded,
+                      color: _C.blue, size: 20),
+                ),
+              ),
+            ),
+
             // ── Header ────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
