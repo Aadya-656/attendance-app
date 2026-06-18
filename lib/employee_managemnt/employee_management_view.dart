@@ -1,7 +1,7 @@
+import 'employee_profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'employee_controller.dart';
-import 'employee_profile_view.dart';
 import 'add_employee_view.dart';
 
 class EmployeeManagementView extends StatelessWidget {
@@ -73,7 +73,44 @@ class EmployeeManagementView extends StatelessWidget {
       }),
     );
   }
-
+  Widget _dashboardTile(
+      String value,
+      String label,
+      Color color,
+      ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.15),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -185,48 +222,89 @@ class EmployeeManagementView extends StatelessWidget {
   }
 
   Widget _teamLeadDashboard() {
-    return Card(
+    return SizedBox(
+        width: double.infinity,
+        child: Card(
       margin: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Attendance Analytics",
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            const SizedBox(height: 10),
+
+        const Center(
+          child: Text(
+            "Attendance Analytics",
               style: TextStyle(
-                fontWeight:
-                FontWeight.bold,
-                fontSize: 18,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+        ),
+
+            const SizedBox(height: 4),
+
+            Text(
+              "Current Month Overview",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 13,
               ),
             ),
 
-            SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-            Text("Present - 88%"),
-            SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _dashboardTile(
+                    "88%",
+                    "Present",
+                    const Color(0xFF43A047),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _dashboardTile(
+                    "9%",
+                    "Not Marked",
+                    const Color(0xFFE57373),
+                  ),
+                ),
+              ],
+            ),
 
-            Text("Late - 4%"),
-            SizedBox(height: 6),
+            const SizedBox(height: 10),
 
-            Text("Leave - 3%"),
-            SizedBox(height: 6),
-
-            Text("Tour - 2%"),
-            SizedBox(height: 6),
-
-            Text("WFH - 2%"),
-            SizedBox(height: 6),
-
-            Text("Face Issues - 1%"),
+            Row(
+              children: [
+                Expanded(
+                  child: _dashboardTile(
+                    "2%",
+                    "WFH",
+                    const Color(0xFF4D6BFF),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _dashboardTile(
+                    "1%",
+                    "Tour",
+                    const Color(0xFF4D6BFF),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
+    ),
     );
   }
 }
