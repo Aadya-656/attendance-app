@@ -178,6 +178,91 @@ class EmployeeProfileView extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            _Card(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Attendance Calendar",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(
+                        Icons.calendar_month,
+                        color: _primary,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 35,
+                    gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 7,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                    itemBuilder: (context, i) {
+                      Color c = Colors.grey.shade200;
+
+                      if (i % 7 == 0) {
+                        c = Colors.red;
+                      } else if (i % 5 == 0) {
+                        c = Colors.blue;
+                      } else {
+                        c = Colors.green;
+                      }
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: c,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "${i + 1}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Wrap(
+                    spacing: 16,
+                    children: [
+                      _LegendDot(
+                        color: Colors.green,
+                        label: "Present",
+                      ),
+                      _LegendDot(
+                        color: Colors.red,
+                        label: "Absent",
+                      ),
+                      _LegendDot(
+                        color: Colors.blue,
+                        label: "WFH",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
