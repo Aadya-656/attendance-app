@@ -111,6 +111,14 @@ class AuthController extends GetxController {
     });
   }
 
+  // Clears session state and returns to the welcome screen. Call this only
+  // after the user has confirmed via the logout confirmation dialog
+  // (see lib/shared/confirm_dialogs.dart).
+  void logout() {
+    clearAll();
+    Get.offAllNamed('/welcome');
+  }
+
   void clearAll() {
     loginNameController.clear();
     loginPhoneController.clear();

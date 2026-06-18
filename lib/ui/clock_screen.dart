@@ -11,6 +11,8 @@ import 'attendance_model.dart';
 import 'clock_controller.dart';
 import 'location_card.dart';
 import '../modules/profile_controller.dart'; // adjust path if needed
+import '../login_1/auth_controller.dart';
+import '../exit_diag/confirm_dialogs.dart';
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
@@ -21,36 +23,55 @@ class ClockScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.find<ClockController>();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 28),
-              _buildStatusCard(ctrl),
-              const SizedBox(height: 20),
-              LocationRadiusCard(ctrl: ctrl),
-              const SizedBox(height: 20),
-              _buildPermissionsCard(ctrl),
-              const SizedBox(height: 20),
-              _buildSelfieCard(context, ctrl),
-              const SizedBox(height: 20),
-              _buildRemoteCard(ctrl),
-              const SizedBox(height: 32),
-              _buildClockButton(ctrl),
-              const SizedBox(height: 24),
-            ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final confirmed = await showExitAppDialog(context);
+        if (confirmed) {
+          closeApp();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F7),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 28),
+                _buildStatusCard(ctrl),
+                const SizedBox(height: 20),
+                LocationRadiusCard(ctrl: ctrl),
+                const SizedBox(height: 20),
+                _buildPermissionsCard(ctrl),
+                const SizedBox(height: 20),
+                _buildSelfieCard(context, ctrl),
+                const SizedBox(height: 20),
+                _buildRemoteCard(ctrl),
+                const SizedBox(height: 32),
+                _buildClockButton(ctrl),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  // Shows the shared logout confirmation and, if accepted, clears the
+  // session and returns to the welcome screen.
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await showLogoutDialog(context);
+    if (confirmed) {
+      Get.find<AuthController>().logout();
+    }
+  }
+
+  Widget _buildHeader(BuildContext context) {
     final now = DateTime.now();
     final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final months = [
@@ -96,35 +117,58 @@ class ClockScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400)),
             ],
           ),
-          GestureDetector(
-            onTap: () => Get.toNamed('/profile'),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      )
-                    ]),
-                child: Center(
-                  child: initial != null
-                      ? Text(initial,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700))
-                      : const Icon(Icons.person_outline_rounded,
-                      color: Colors.white, size: 20),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => _confirmLogout(context),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFFCEBEB),
+                        borderRadius: BorderRadius.circular(12)),
+                    child: const Center(
+                      child: Icon(Icons.logout_rounded,
+                          color: Color(0xFFA32D2D), size: 20),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              GestureDetector(
+                onTap: () => Get.toNamed('/profile'),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFF2563EB),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          )
+                        ]),
+                    child: Center(
+                      child: initial != null
+                          ? Text(initial,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700))
+                          : const Icon(Icons.person_outline_rounded,
+                          color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       );
