@@ -40,8 +40,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
   bool get _isEmailValid {
     final v = _emailController.text.trim();
     if (v.isEmpty) return false;
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(v);
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v);
   }
 
   bool get _isPhoneValid =>
@@ -53,18 +52,10 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
   void initState() {
     super.initState();
     _emailController.addListener(() {
-      if (!_emailTouched && _emailController.text.isNotEmpty) {
-        setState(() => _emailTouched = true);
-      } else {
-        setState(() {});
-      }
+      setState(() => _emailTouched = _emailTouched || _emailController.text.isNotEmpty);
     });
     _phoneController.addListener(() {
-      if (!_phoneTouched && _phoneController.text.isNotEmpty) {
-        setState(() => _phoneTouched = true);
-      } else {
-        setState(() {});
-      }
+      setState(() => _phoneTouched = _phoneTouched || _phoneController.text.isNotEmpty);
     });
   }
 
@@ -78,6 +69,12 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
     _employmentTillController.dispose();
     super.dispose();
   }
+
+  // ── Reusable border helper ───────────────────────────────
+  OutlineInputBorder _outlineBorder(Color color) => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: color, width: 1.5),
+      );
 
   void _addEmployee() {
     if (!_formKey.currentState!.validate()) return;
@@ -126,6 +123,14 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
 
   @override
   Widget build(BuildContext context) {
+    // Derive border colors live
+    final emailBorderColor = (_emailTouched && !_isEmailValid)
+        ? AppColors.error
+        : AppColors.border;
+    final phoneBorderColor = (_phoneTouched && !_isPhoneValid)
+        ? AppColors.error
+        : AppColors.border;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -177,98 +182,140 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                   prefixIcon: const Icon(Icons.person_outline_rounded,
                       size: 18, color: AppColors.textHint),
                   validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                      (v == null || v.trim().isEmpty) ? 'Name is required' : null,
                 ),
                 const SizedBox(height: 20),
 
-                // ── Email — box border, red when invalid ─────
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    inputDecorationTheme: InputDecorationTheme(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: (_emailTouched && !_isEmailValid)
-                              ? AppColors.error
-                              : AppColors.border,
-                          width: 1.5,
-                        ),
+                // ── Email — manual TextFormField with fixed box border ──
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Email Address',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                  ),
-                  child: AppTextField(
-                    label: 'Email Address',
-                    hint: 'official@example.gov.in',
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: const Icon(Icons.mail_outline_rounded,
-                        size: 18, color: AppColors.textHint),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Email is required';
-                      final emailRegex =
-                      RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                      if (!emailRegex.hasMatch(v.trim())) {
-                        return 'Enter a valid email (e.g. name@gmail.com)';
-                      }
-                      return null;
-                    },
-                  ),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'official@example.gov.in',
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textHint.withOpacity(0.5),
+                        ),
+                        prefixIcon: const Icon(Icons.mail_outline_rounded,
+                            size: 18, color: AppColors.textHint),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        enabledBorder: _outlineBorder(emailBorderColor),
+                        focusedBorder: _outlineBorder(
+                          (_emailTouched && !_isEmailValid)
+                              ? AppColors.error
+                              : AppColors.primary,
+                        ),
+                        errorBorder: _outlineBorder(AppColors.error),
+                        focusedErrorBorder: _outlineBorder(AppColors.error),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(v.trim())) {
+                          return 'Enter a valid email (e.g. name@gmail.com)';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
 
-                // ── Mobile — box border, red until 10 digits ─
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    inputDecorationTheme: InputDecorationTheme(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: (_phoneTouched && !_isPhoneValid)
-                              ? AppColors.error
-                              : AppColors.border,
-                          width: 1.5,
-                        ),
+                // ── Mobile — manual TextFormField with fixed box border ──
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Mobile Number',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                  ),
-                  child: AppTextField(
-                    label: 'Mobile Number',
-                    hint: '10-digit number',
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            '+91',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                    const SizedBox(height: 6),
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '10-digit number',
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textHint.withOpacity(0.5),
+                        ),
+                        prefixIcon: Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                '+91',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                  width: 1,
+                                  height: 18,
+                                  color: AppColors.border),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Container(
-                              width: 1, height: 18, color: AppColors.border),
-                        ],
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        enabledBorder: _outlineBorder(phoneBorderColor),
+                        focusedBorder: _outlineBorder(
+                          (_phoneTouched && !_isPhoneValid)
+                              ? AppColors.error
+                              : AppColors.primary,
+                        ),
+                        errorBorder: _outlineBorder(AppColors.error),
+                        focusedErrorBorder: _outlineBorder(AppColors.error),
                       ),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) {
+                          return 'Mobile number is required';
+                        }
+                        if (!RegExp(r'^[0-9]{10}$').hasMatch(v.trim())) {
+                          return 'Enter a valid 10-digit mobile number';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) {
-                        return 'Mobile number is required';
-                      }
-                      if (!RegExp(r'^[0-9]{10}$').hasMatch(v.trim())) {
-                        return 'Enter a valid 10-digit mobile number';
-                      }
-                      return null;
-                    },
-                  ),
+                  ],
                 ),
 
                 const SizedBox(height: 28),
@@ -331,7 +378,8 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                       decoration: BoxDecoration(
                         color: AppColors.primaryLight,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border, width: 1.5),
+                        border:
+                            Border.all(color: AppColors.border, width: 1.5),
                       ),
                       child: const Row(
                         children: [
@@ -375,7 +423,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                     final picked = await showDatePicker(
                       context: context,
                       initialDate:
-                      DateTime.now().add(const Duration(days: 365)),
+                          DateTime.now().add(const Duration(days: 365)),
                       firstDate: DateTime.now(),
                       lastDate: DateTime(2040),
                       builder: (ctx, child) => Theme(
@@ -390,7 +438,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                     );
                     if (picked != null) {
                       _employmentTillController.text =
-                      '${picked.day.toString().padLeft(2, '0')} / '
+                          '${picked.day.toString().padLeft(2, '0')} / '
                           '${picked.month.toString().padLeft(2, '0')} / '
                           '${picked.year}';
                     }
