@@ -147,19 +147,38 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
           "Verify Employees",
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
+        // ── FIX: Wrap button in Theme to isolate it from the AppBar's
+        //         foregroundColor (black87), which was overriding the
+        //         button's white text/icon and making it invisible.
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Get.to(() => const CreateEmployeeView());
-              },
-              icon: const Icon(Icons.person_add_alt_1, size: 18),
-              label: const Text("Create"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff4D6BFF),
-                foregroundColor: Colors.white,
-                elevation: 0,
+            child: Theme(
+              data: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: _primary,
+                  primary: _primary,
+                ),
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Get.to(() => const CreateEmployeeView());
+                },
+                icon: const Icon(Icons.person_add_alt_1, size: 18),
+                label: const Text("Create"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ),
           ),
@@ -180,7 +199,6 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
         itemCount: _pending.length,
         separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (_, i) => _VerificationCard(
-          // KEY is critical — each card gets its own isolated state
           key: ValueKey(_pending[i].idNumber),
           employee: _pending[i],
           onApprove: () => _approve(_pending[i]),
@@ -217,8 +235,6 @@ class _VerificationCardState extends State<_VerificationCard> {
   static const _green = Color(0xff4CAF50);
   static const _red = Color(0xffEF5350);
 
-  // This File? lives entirely inside this card's state.
-  // It is never shared or inherited from any parent or sibling.
   File? _photo;
   bool _expanded = false;
 
@@ -233,9 +249,6 @@ class _VerificationCardState extends State<_VerificationCard> {
     }
   }
 
-  // Tapping the avatar no longer opens the camera.
-  // If a photo has already been attached, it expands into a
-  // full-screen viewer. If not, it opens a blank placeholder screen.
   void _onAvatarTap() {
     if (_photo != null) {
       Navigator.push(
@@ -281,7 +294,7 @@ class _VerificationCardState extends State<_VerificationCard> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Avatar: tap to expand photo (or blank screen if none yet)
+                  // Avatar
                   GestureDetector(
                     onTap: _onAvatarTap,
                     child: Stack(
@@ -381,7 +394,9 @@ class _VerificationCardState extends State<_VerificationCard> {
                   ),
 
                   Icon(
-                    _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    _expanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     color: Colors.grey[400],
                   ),
                 ],
@@ -400,12 +415,14 @@ class _VerificationCardState extends State<_VerificationCard> {
               child: Column(
                 children: [
                   _row(Icons.badge_outlined, "ID Number", emp.idNumber),
-                  _row(Icons.location_on_outlined, "Primary Office", emp.primaryOffice),
+                  _row(Icons.location_on_outlined, "Primary Office",
+                      emp.primaryOffice),
                   _row(Icons.email_outlined, "Email", emp.email),
                   _row(Icons.phone_outlined, "Mobile", emp.mobile),
                   _row(Icons.code_outlined, "Project", emp.project),
                   _row(Icons.wb_sunny_outlined, "Shift", emp.shift),
-                  _row(Icons.event_outlined, "Employment Till", emp.employmentTill,
+                  _row(Icons.event_outlined, "Employment Till",
+                      emp.employmentTill,
                       isLast: true),
                   const SizedBox(height: 14),
 
@@ -469,7 +486,8 @@ class _VerificationCardState extends State<_VerificationCard> {
               border: const Border(
                   top: BorderSide(color: Color(0xffF0F0F0), width: 1)),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Expanded(
@@ -503,8 +521,7 @@ class _VerificationCardState extends State<_VerificationCard> {
                     onPressed: () => _confirmDialog(
                       context,
                       title: "Approve & Add",
-                      message:
-                      "Add ${emp.name} to the employee roster?",
+                      message: "Add ${emp.name} to the employee roster?",
                       confirmLabel: "Approve",
                       confirmColor: _primary,
                       onConfirm: widget.onApprove,
@@ -565,8 +582,7 @@ class _VerificationCardState extends State<_VerificationCard> {
             ],
           ),
         ),
-        if (!isLast)
-          Container(height: 0.5, color: const Color(0xffF0F0F0)),
+        if (!isLast) Container(height: 0.5, color: const Color(0xffF0F0F0)),
       ],
     );
   }
@@ -582,16 +598,19 @@ class _VerificationCardState extends State<_VerificationCard> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-        content:
-        Text(message, style: const TextStyle(color: Colors.black54, fontSize: 14)),
+            style:
+            const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+        content: Text(message,
+            style:
+            const TextStyle(color: Colors.black54, fontSize: 14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-            Text("Cancel", style: TextStyle(color: Colors.grey[600])),
+            child: Text("Cancel",
+                style: TextStyle(color: Colors.grey[600])),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -616,8 +635,6 @@ class _VerificationCardState extends State<_VerificationCard> {
 
 // ─────────────────────────────────────────────
 // Full-screen photo viewer
-// Shown when the avatar is tapped AFTER a photo
-// has been attached. Supports pinch-to-zoom.
 // ─────────────────────────────────────────────
 class _PhotoViewerScreen extends StatelessWidget {
   final File photo;
@@ -648,8 +665,6 @@ class _PhotoViewerScreen extends StatelessWidget {
 
 // ─────────────────────────────────────────────
 // Blank placeholder screen
-// Shown when the avatar is tapped BEFORE any
-// photo has been captured.
 // ─────────────────────────────────────────────
 class _BlankPhotoScreen extends StatelessWidget {
   const _BlankPhotoScreen();
@@ -686,6 +701,7 @@ class _BlankPhotoScreen extends StatelessWidget {
     );
   }
 }
+
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

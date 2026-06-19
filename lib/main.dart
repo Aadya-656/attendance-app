@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:csv/csv.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:clock_camera_v4/employee_managemnt/employee_controller.dart';
 import 'ui/clock_screen.dart';
 import 'ui/clock_controller.dart';
 import 'login_1/auth_controller.dart';
@@ -40,6 +40,7 @@ class AttendanceApp extends StatelessWidget {
         Get.put(ClockController());
         Get.put(NavController());
         Get.put(CalendarController());
+        Get.put(EmployeeController());
       }),
 
       initialRoute: '/splash',
