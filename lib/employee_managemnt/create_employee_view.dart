@@ -36,12 +36,14 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
   // ── Live validity flags ──────────────────────────────────
   bool _emailTouched = false;
   bool _phoneTouched = false;
+
   bool get _isEmailValid {
     final v = _emailController.text.trim();
     if (v.isEmpty) return false;
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(v);
   }
+
   bool get _isPhoneValid =>
       RegExp(r'^[0-9]{10}$').hasMatch(_phoneController.text.trim());
 
@@ -122,31 +124,6 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
     );
   }
 
-  // ── Helper: live-validation border decoration ────────────
-  InputDecoration _emailDecoration() {
-    if (_emailTouched && !_isEmailValid) {
-      return InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
-        ),
-      );
-    }
-    return const InputDecoration();
-  }
-
-  InputDecoration _phoneDecoration() {
-    if (_phoneTouched && !_isPhoneValid) {
-      return InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
-        ),
-      );
-    }
-    return const InputDecoration();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,6 +169,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 const SectionDivider(label: 'PERSONAL DETAILS'),
                 const SizedBox(height: 20),
 
+                // ── Full Name ────────────────────────────────
                 AppTextField(
                   label: 'Full Name',
                   hint: 'As per government ID',
@@ -203,17 +181,19 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
                 const SizedBox(height: 20),
 
-                // ── Email — red border until valid ──────────
+                // ── Email — box border, red when invalid ─────
                 Theme(
                   data: Theme.of(context).copyWith(
                     inputDecorationTheme: InputDecorationTheme(
-                      enabledBorder: _emailTouched && !_isEmailValid
-                          ? OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: AppColors.error, width: 1.5),
-                      )
-                          : null,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: (_emailTouched && !_isEmailValid)
+                              ? AppColors.error
+                              : AppColors.border,
+                          width: 1.5,
+                        ),
+                      ),
                     ),
                   ),
                   child: AppTextField(
@@ -236,17 +216,19 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
                 const SizedBox(height: 20),
 
-                // ── Mobile — red border until 10 digits ─────
+                // ── Mobile — box border, red until 10 digits ─
                 Theme(
                   data: Theme.of(context).copyWith(
                     inputDecorationTheme: InputDecorationTheme(
-                      enabledBorder: _phoneTouched && !_isPhoneValid
-                          ? OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                            color: AppColors.error, width: 1.5),
-                      )
-                          : null,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: (_phoneTouched && !_isPhoneValid)
+                              ? AppColors.error
+                              : AppColors.border,
+                          width: 1.5,
+                        ),
+                      ),
                     ),
                   ),
                   child: AppTextField(
@@ -293,6 +275,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 const SectionDivider(label: 'EMPLOYMENT DETAILS'),
                 const SizedBox(height: 20),
 
+                // ── Employee ID ──────────────────────────────
                 AppTextField(
                   label: 'Employee ID',
                   hint: 'ID issued by employer',
@@ -305,6 +288,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
                 const SizedBox(height: 20),
 
+                // ── Office Dropdown ──────────────────────────
                 AppDropdownField<String>(
                   label: 'Primary Office Location',
                   hint: 'Select location',
@@ -315,6 +299,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
                 const SizedBox(height: 20),
 
+                // ── Project ──────────────────────────────────
                 AppTextField(
                   label: 'Project',
                   hint: 'Project assigned',
@@ -345,16 +330,15 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                           horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
                         color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(10),
-                        border:
-                        Border.all(color: AppColors.border, width: 1.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border, width: 1.5),
                       ),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(Icons.schedule_rounded,
+                          Icon(Icons.schedule_rounded,
                               size: 18, color: AppColors.primary),
-                          const SizedBox(width: 10),
-                          const Text(
+                          SizedBox(width: 10),
+                          Text(
                             'General Shift',
                             style: TextStyle(
                               fontSize: 14,
@@ -362,8 +346,8 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const Spacer(),
-                          const Text(
+                          Spacer(),
+                          Text(
                             'Default',
                             style: TextStyle(
                               fontSize: 11,
@@ -378,6 +362,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
                 const SizedBox(height: 20),
 
+                // ── Employment Till Date ─────────────────────
                 AppTextField(
                   label: 'Employment Till Date',
                   hint: 'DD / MM / YYYY',
@@ -416,9 +401,12 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                 ),
 
                 const SizedBox(height: 36),
-                ElevatedButton(
-                  onPressed: _addEmployee,
-                  child: const Text('Add Employee'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _addEmployee,
+                    child: const Text('Add Employee'),
+                  ),
                 ),
                 const SizedBox(height: 40),
               ],
