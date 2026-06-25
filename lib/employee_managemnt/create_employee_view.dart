@@ -210,7 +210,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                         hintText: 'official@example.gov.in',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textHint.withOpacity(0.5),
+                          color: AppColors.textHint,
                         ),
                         prefixIcon: const Icon(Icons.mail_outline_rounded,
                             size: 18, color: AppColors.textHint),
@@ -268,7 +268,7 @@ class _CreateEmployeeViewState extends State<CreateEmployeeView> {
                         hintText: '10-digit number',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textHint.withOpacity(0.5),
+                          color: AppColors.textHint,
                         ),
                         prefixIcon: Padding(
                           padding:
