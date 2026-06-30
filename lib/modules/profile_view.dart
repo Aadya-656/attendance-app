@@ -6,6 +6,9 @@ import 'package:csv/csv.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:clock_camera_v4/mod_reports/report_view.dart';
 
+/// Attendance summary screen. Previously its own standalone app
+/// (launched via a plain MaterialApp); now wired in as the '/profile'
+/// route inside the shared GetMaterialApp in main.dart.
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
@@ -14,6 +17,27 @@ class ProfileView extends StatelessWidget {
   static const primary = Color(0xff4D6BFF);
   static const text = Color(0xff222222);
   static const sub = Color(0xff777C85);
+
+  final List<Color> calendarColors = const [
+    Colors.green,
+    Colors.green,
+    Colors.red,
+    Colors.blue,
+    Colors.blue,
+    Colors.green,
+    Colors.blue,
+    Colors.green,
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.blue,
+    Colors.green,
+    Colors.green,
+    Colors.green,
+    Colors.red,
+    Colors.blue,
+    Colors.blue,
+  ];
 
   final List<String> attendanceStatus = const [
     "Present",
@@ -163,6 +187,7 @@ class ProfileView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
+                          // Designation + office on one line
                           Row(
                             children: [
                               const Text(
@@ -268,25 +293,22 @@ class ProfileView extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: 35,
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 7,
                         mainAxisSpacing: 10,
                         crossAxisSpacing: 10,
                       ),
                       itemBuilder: (context, i) {
-                        Color bgTint;
-                        Color fg;
+                        Color base = Colors.grey.shade300;
 
-                        if (i % 7 == 0) {
-                          bgTint = const Color(0xffEF5350).withOpacity(0.12);
-                          fg = const Color(0xffEF5350);
-                        } else if (i % 5 == 0) {
-                          bgTint = const Color(0xff5C8DFF).withOpacity(0.14);
-                          fg = const Color(0xff5C8DFF);
-                        } else {
-                          bgTint = const Color(0xff4CAF50).withOpacity(0.12);
-                          fg = const Color(0xff4CAF50);
+                        if (i < calendarColors.length) {
+                          base = calendarColors[i];
                         }
+
+                        final Color bgTint = base.withOpacity(0.12);
+                        final Color fg = base == Colors.grey.shade300
+                            ? Colors.grey
+                            : base;
 
                         return Container(
                           decoration: BoxDecoration(
@@ -325,7 +347,9 @@ class ProfileView extends StatelessWidget {
                             child: const Text("Reports"),
                           ),
                         ),
+
                         const SizedBox(width: 12),
+
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () => exportCSV(context),
@@ -350,9 +374,9 @@ class ProfileView extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        legend(const Color(0xff4CAF50), "Present"),
-                        legend(const Color(0xffEF5350), "Absent"),
-                        legend(const Color(0xff5C8DFF), "Others"),
+                        legend(Colors.green, "Present"),
+                        legend(Colors.red, "Absent"),
+                        legend(Colors.blue, "Others"),
                       ],
                     ),
                   ],
